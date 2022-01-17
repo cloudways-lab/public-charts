@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  nfs-server-gcp:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-01-17T09:33:35.699586406Z"
+    description: A Helm chart for Kubernetes
+    digest: eac4e2de2a0afcf458133d32fc55ac33ab4189f4d7ddc3ab1be5f67bbb2c2684
+    name: nfs-server-gcp
+    type: application
+    urls:
+    - nfs-server-gcp-0.1.0.tgz
+    version: 0.1.0
+generated: "2022-01-17T09:33:35.698965506Z"
