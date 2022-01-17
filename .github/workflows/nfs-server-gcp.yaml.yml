@@ -1,0 +1,84 @@
+name: Build nfs-server-gcp helm chart
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - "charts/nfs-server-gcp/**"
+      - ".github/workflows/nfs-server-gcp.yaml"
+  
+jobs:
+  nfs-server-gcp:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: pulling the branch
+      with:
+        fetch-depth: 50
+
+    - name: Linting Helm
+      run: |
+        helm lint charts/nfs-server-gcp/
+
+    - name: Setup git
+      if: github.event_name == 'push'
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+    - name: Get new chart version
+      if: github.event_name == 'push'
+      run: |
+        echo "NFSSERVER_VERSION=$(cat charts/nfs-server-gcp/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+
+    - name: Debug
+      if: github.event_name == 'push'
+      id: version
+      run: |
+        echo "::set-output name=NFSSERVER_VERSION::$(echo $NFSSERVER_VERSION)"
+
+    - name: Generate changelog
+      if: github.event_name == 'push'
+      id: Changelog
+      uses: metcalfc/changelog-generator@v1.0.0
+      with:
+        myToken: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release
+      if: github.event_name == 'push'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "nfs-server-gcp-${{ env.NFSSERVER_VERSION }}"
+        release_name: "nfs-server-gcp-${{ env.NFSSERVER_VERSION }}"
+        body: ${{ steps.Changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+
+    - name: Copy chart to gh-pages branch
+      if: github.event_name == 'push'
+      run: |
+        git fetch origin gh-pages
+        git checkout gh-pages
+        git checkout main charts/nfs-server-gcp/
+
+    - name: Package and indexing Chart
+      if: github.event_name == 'push'
+      run: |
+        helm dependency update charts/nfs-server-gcp/
+        helm package charts/nfs-server-gcp/
+        helm repo index .
+
+    - name: Commit to branch
+      if: github.event_name == 'push'
+      run: |
+        git restore --staged charts/nfs-server-gcp/
+        git add index.yaml nfs-server-gcp*.tgz
+        git commit -m "[AUTO] New nfs-server-gcp Chart version"
+        git push

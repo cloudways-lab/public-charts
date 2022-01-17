@@ -1,1 +1,1 @@
-# public-charts
+# helm-charts
