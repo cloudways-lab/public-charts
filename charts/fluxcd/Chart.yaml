@@ -1,0 +1,10 @@
+apiVersion: v2
+name: fluxcd
+description: A Helm chart custom fluxcd
+
+type: application
+
+version: 0.1.0
+
+# this version represaints the version of fluxcd used to genrate the yaml files.
+appVersion: "0.25.2"
