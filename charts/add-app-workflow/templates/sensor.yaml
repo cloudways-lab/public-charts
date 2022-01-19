@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: {{ include "add-app-workflow.name" . }}
+spec:
+  template:
+    serviceAccountName: {{ .Values.serviceAccount.workflowServiceAccountName }}
+  dependencies:
+    - name: test-dep
+      eventSourceName: {{ include "add-app-workflow.name" . }}
+      eventName: add-app
+  triggers:
+    - template:
+        name: add-app-workflow
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: add-app-workflow-
+              spec:
+                entrypoint: whalesay
+                arguments:
+                  parameters:
+                  - name: message
+                    value: "{{` {{inputs.parameters.message}}` }}"
+                templates:
+                - name: whalesay
+                  steps:
+                    - - name: hello-world
+                        templateRef:
+                          name: {{ include "add-app-workflow.name" . }}
+                          template: add-app
+          parameters:
+            - src:
+                dependencyName: test-dep
+                dataKey: body
+              dest: spec.arguments.parameters.0.value

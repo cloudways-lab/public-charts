@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: {{ include "add-app-workflow.name" . }}
+spec:
+  serviceAccountName: {{ .Values.serviceAccount.workflowServiceAccountName }}
+  templates:
+    - name: add-app
+      container:
+        image: docker/whalesay
+        command: [cowsay]
+        args: ["{{` {{workflow.parameters.message}}` }}"]
