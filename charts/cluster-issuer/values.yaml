@@ -1,0 +1,10 @@
+APIToken: test
+
+clusterIssuer:
+  name: cloudflare-issuer
+  cloudflare:
+    email: cloudways@flugel.it
+    server: test.cloudflare.com
+    APIToken:
+      name: cloudflare-api-token-secret
+      key: api-token
