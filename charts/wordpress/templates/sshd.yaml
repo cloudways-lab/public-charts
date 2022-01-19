@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sshd
+  labels:
+    app: sshd
+    role: wp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sshd
+      tier: admin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: sshd
+        tier: admin
+    spec:
+      serviceAccountName: poc-k8s-sa
+      volumes:
+      - name: nfsshare
+        persistentVolumeClaim:
+          claimName: wpdocroot
+      - name: ssh-user-conf-volume
+        secret:
+          secretName: ssh-user-conf-secret
+          items:
+          - key: "authorized_keys"
+            path: "authorized_keys"
+      containers:
+      - name: sshd
+        image: wordpress:php8.1-fpm
+        # This excessive command would obviously be built into a container if not for time pressures
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "export DEBIAN_FRONTEND=noninteractive; apt update; apt install vim-tiny dnsutils less iputils-ping iproute2 libzstd-dev curl unzip default-mysql-client openssh-server redis-tools -y; useradd -m -s /bin/bash cwdev; mkdir -m 0700 /home/cwdev/.ssh/; chown cwdev: /home/cwdev/.ssh/; touch /home/cwdev/.ssh/authorized_keys; chmod 0600 /home/cwdev/.ssh/authorized_keys; chown cwdev: /home/cwdev/.ssh/authorized_keys; pecl install igbinary && docker-php-ext-enable igbinary; yes | pecl install redis && docker-php-ext-enable redis; curl -so /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x /usr/local/bin/wp; mkdir -p /var/run/admin/; mkdir -p /run/sshd/; /usr/sbin/sshd -D"
+        env:
+        - name: WORDPRESS_DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-db
+              key: host
+        - name: WORDPRESS_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-db
+              key: user
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-db
+              key: password
+        - name: WORDPRESS_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-db
+              key: db
+        envFrom:
+        - configMapRef:
+            name: wordpress-options-configmap
+        volumeMounts:
+        - name: nfsshare
+          mountPath: /var/www/html/
+        - name: ssh-user-conf-volume
+          mountPath: /home/cwdev/.ssh/authorized_keys
+          subPath: authorized_keys
+        ports:
+        - containerPort: 22
+          name: sshd-svc
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:latest
+        command:
+          - "/cloud_sql_proxy"
+          - "-ip_address_types=PRIVATE"
+          - "-instances=jetstack-gke-335118:europe-west2:poc-sql=tcp:3306"
+        securityContext:
+          runAsNonRoot: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sshd
+  labels:
+    app: sshd
+spec:
+  ports:
+    - port: 22
+      targetPort: 22
+      name: sshd-svc
+  selector:
+    app: sshd
+    tier: admin
+  type: ClusterIP

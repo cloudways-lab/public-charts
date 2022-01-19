@@ -1,0 +1,62 @@
+# This pod/job must not be available to the user in production
+# It has root credentials for CloudSQL and can create dbs, users, grants
+# It's only here for development/proof of concept
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysqlclient
+spec:
+  serviceAccountName: poc-k8s-sa
+  restartPolicy: Never
+  containers:
+  - name: mysqlclient
+    image: mysql
+    env:
+    - name: SQL_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: gcp-cloudsql
+          key: user
+    - name: SQL_ROOT_PASS
+      valueFrom:
+        secretKeyRef:
+          name: gcp-cloudsql
+          key: pass
+    - name: WORDPRESS_DB_HOST
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: host
+    - name: WORDPRESS_DB_USER
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: user
+    - name: WORDPRESS_DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: password
+    - name: WORDPRESS_DB_NAME
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: db
+    command:
+    - "/bin/sh"
+    - "-c"
+    - "sleep 30; echo \"[client]\" >> /root/.my.cnf; echo \"host=${WORDPRESS_DB_HOST}\" >> /root/.my.cnf; echo \"user=${SQL_ROOT_USER}\" >> /root/.my.cnf; echo \"password=${SQL_ROOT_PASS}\" >> /root/.my.cnf; mysql -e \"CREATE DATABASE IF NOT EXISTS ${WORDPRESS_DB_NAME};\"; mysql -e \"CREATE USER '${WORDPRESS_DB_USER}'@'%' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';\"; mysql -e \"GRANT ALL PRIVILEGES ON ${WORDPRESS_DB_NAME}.* TO '${WORDPRESS_DB_USER}'@'%' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';\"; mysql -e \"FLUSH PRIVILEGES;\"; while true; do sleep 86400; done"
+  - name: cloud-sql-proxy
+    image: gcr.io/cloudsql-docker/gce-proxy:latest
+    env:
+    - name: GCP_CLOUDSQL_CONNECTION_NAME
+      valueFrom:
+        secretKeyRef:
+          name: gcp-cloudsql
+          key: connection_name
+    command:
+    - "/cloud_sql_proxy"
+    - "-ip_address_types=PRIVATE"
+    - "-instances=jetstack-gke-335118:europe-west2:poc-sql=tcp:3306"
+    securityContext:
+      runAsNonRoot: true

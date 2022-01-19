@@ -1,0 +1,55 @@
+# Convert this into a Job
+apiVersion: v1
+kind: Pod
+metadata:
+  name: objectcacheprovision
+spec:
+  serviceAccountName: poc-k8s-sa
+  restartPolicy: Never
+  volumes:
+  - name: nfsshare
+    persistentVolumeClaim:
+      claimName: wpdocroot
+  containers:
+  - name: objectcacheprovision
+    image: wordpress:php8.1-fpm
+    # This excessive command would obviously be built into a container if not for time pressures
+    command:
+    - "/bin/sh"
+    - "-c"
+    - "export DEBIAN_FRONTEND=noninteractive; apt update; apt install vim-tiny dnsutils less iputils-ping iproute2 libzstd-dev curl unzip default-mysql-client openssh-server redis-tools -y; useradd -m -s /bin/bash cwdev; mkdir -m 0700 /home/cwdev/.ssh/; chown cwdev: /home/cwdev/.ssh/; touch /home/cwdev/.ssh/authorized_keys; chmod 0600 /home/cwdev/.ssh/authorized_keys; chown cwdev: /home/cwdev/.ssh/authorized_keys; pecl install igbinary && docker-php-ext-enable igbinary; yes | pecl install redis && docker-php-ext-enable redis; curl -so /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x /usr/local/bin/wp; curl -o /tmp/redis-cache-pro.zip -sL https://objectcache.pro/plugin/redis-cache-pro.zip?token=e279430effe043b8c17d3f3c751c4c0846bc70c97f0eaaea766b4079001c; unzip -q /tmp/redis-cache-pro.zip -d /tmp/; mkdir -m 0755 -p /var/www/html/wp-content/mu-plugins/; cp /tmp/redis-cache-pro/stubs/mu-plugin.php /var/www/html/wp-content/mu-plugins/redis-cache-pro.php; cp -r /tmp/redis-cache-pro/ /var/www/html/wp-content/mu-plugins/; chown -R www-data: /var/www/html/wp-content/; rm -rf /tmp/redis-cache-pro.zip; rm -rf /tmp/redis-cache-pro; WP_REDIS_CONFIG='[ \"token\" => \"e279430effe043b8c17d3f3c751c4c0846bc70c97f0eaaea766b4079001c\", \"host\" => \"redis.default.svc.cluster.local\", \"port\" => \"6379\", \"database\" => \"1\", \"timeout\" => \"2.5\", \"read_timeout\" => \"2.5\", \"split_alloptions\" => true, \"async_flush\" => true, \"client\" => \"phpredis\", \"compression\" => \"zstd\", \"serializer\" => \"igbinary\", \"prefetch\" => true, \"debug\" => false, \"save_commands\" => false, ]'; wp --allow-root --path=/var/www/html/ config set --add --raw WP_REDIS_CONFIG \"${WP_REDIS_CONFIG}\"; wp --allow-root --path=/var/www/html/ config set --add --raw WP_REDIS_DISABLED false; sleep 30; wp --allow-root --path=/var/www/html/ redis enable --force; while true; do sleep 86400; done"
+    env:
+    - name: WORDPRESS_DB_HOST
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: host
+    - name: WORDPRESS_DB_USER
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: user
+    - name: WORDPRESS_DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: password
+    - name: WORDPRESS_DB_NAME
+      valueFrom:
+        secretKeyRef:
+          name: wordpress-db
+          key: db
+    envFrom:
+    - configMapRef:
+        name: wordpress-options-configmap
+    volumeMounts:
+    - name: nfsshare
+      mountPath: /var/www/html/
+  - name: cloud-sql-proxy
+    image: gcr.io/cloudsql-docker/gce-proxy:latest
+    command:
+      - "/cloud_sql_proxy"
+      - "-ip_address_types=PRIVATE"
+      - "-instances=jetstack-gke-335118:europe-west2:poc-sql=tcp:3306"
+    securityContext:
+      runAsNonRoot: true
