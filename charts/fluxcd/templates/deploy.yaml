@@ -7,7 +7,6 @@ metadata:
     app.kubernetes.io/version: v0.25.2
     control-plane: controller
   name: helm-controller
-  namespace: flux-system
 spec:
   replicas: 1
   selector:
@@ -22,19 +21,17 @@ spec:
         app: helm-controller
     spec:
       containers:
+      {{- with .Values.helmController.args }}
       - args:
-        - --events-addr=
-        - --watch-all-namespaces=true
-        - --log-level=info
-        - --log-encoding=json
-        - --enable-leader-election
+      {{- toYaml . | nindent 10 }}
+      {{- end }}
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: ghcr.io/fluxcd/helm-controller:v0.15.0
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.helmController.image }}
+        imagePullPolicy: {{ .Values.helmController.imagePullPolicy }}
         livenessProbe:
           httpGet:
             path: /healthz
@@ -51,20 +48,17 @@ spec:
             path: /readyz
             port: healthz
         resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 64Mi
+          {{- toYaml .Values.helmController.resources | nindent 12 }}
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
         volumeMounts:
         - mountPath: /tmp
           name: temp
+      {{- with .Values.helmController.nodeSelector }}
       nodeSelector:
-        kubernetes.io/os: linux
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: helm-controller
       terminationGracePeriodSeconds: 600
       volumes:
@@ -80,7 +74,6 @@ metadata:
     app.kubernetes.io/version: v0.25.2
     control-plane: controller
   name: image-automation-controller
-  namespace: flux-system
 spec:
   replicas: 1
   selector:
@@ -95,19 +88,17 @@ spec:
         app: image-automation-controller
     spec:
       containers:
+      {{- with .Values.imageAutomationController.args }}
       - args:
-        - --events-addr=
-        - --watch-all-namespaces=true
-        - --log-level=info
-        - --log-encoding=json
-        - --enable-leader-election
+      {{- toYaml . | nindent 10 }}
+      {{- end }}
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: ghcr.io/fluxcd/image-automation-controller:v0.19.0
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.imageAutomationController.image }}
+        imagePullPolicy: {{ .Values.imageAutomationController.imagePullPolicy }}
         livenessProbe:
           httpGet:
             path: /healthz
@@ -124,20 +115,17 @@ spec:
             path: /readyz
             port: healthz
         resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 64Mi
+          {{- toYaml .Values.imageAutomationController.resources | nindent 12 }}
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
         volumeMounts:
         - mountPath: /tmp
           name: temp
+      {{- with .Values.imageAutomationController.nodeSelector }}
       nodeSelector:
-        kubernetes.io/os: linux
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         fsGroup: 1337
       serviceAccountName: image-automation-controller
@@ -155,7 +143,6 @@ metadata:
     app.kubernetes.io/version: v0.25.2
     control-plane: controller
   name: image-reflector-controller
-  namespace: flux-system
 spec:
   replicas: 1
   selector:
@@ -170,19 +157,18 @@ spec:
         app: image-reflector-controller
     spec:
       containers:
+      {{- with .Values.imageReflectorController.args }}
       - args:
-        - --events-addr=
-        - --watch-all-namespaces=true
-        - --log-level=info
-        - --log-encoding=json
-        - --enable-leader-election
+      {{- toYaml . | nindent 10 }}
+      {{- end }}
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: ghcr.io/fluxcd/image-reflector-controller:v0.15.0
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.imageReflectorController.image }}
+        imagePullPolicy: {{ .Values.imageReflectorController.imagePullPolicy }}
+        livenessProbe:
         livenessProbe:
           httpGet:
             path: /healthz
@@ -199,12 +185,7 @@ spec:
             path: /readyz
             port: healthz
         resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 64Mi
+          {{- toYaml .Values.imageReflectorController.resources | nindent 12 }}
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -213,8 +194,10 @@ spec:
           name: temp
         - mountPath: /data
           name: data
+      {{- with .Values.imageReflectorController.nodeSelector }}
       nodeSelector:
-        kubernetes.io/os: linux
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         fsGroup: 1337
       serviceAccountName: image-reflector-controller
@@ -234,7 +217,6 @@ metadata:
     app.kubernetes.io/version: v0.25.2
     control-plane: controller
   name: source-controller
-  namespace: flux-system
 spec:
   replicas: 1
   selector:
@@ -251,21 +233,17 @@ spec:
         app: source-controller
     spec:
       containers:
+      {{- with .Values.sourceController.args }}
       - args:
-        - --events-addr=
-        - --watch-all-namespaces=true
-        - --log-level=info
-        - --log-encoding=json
-        - --enable-leader-election
-        - --storage-path=/data
-        - --storage-adv-addr=source-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+      {{- toYaml . | nindent 10 }}
+      {{- end }}
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: ghcr.io/fluxcd/source-controller:v0.20.1
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.sourceController.image }}
+        imagePullPolicy: {{ .Values.sourceController.imagePullPolicy }}
         livenessProbe:
           httpGet:
             path: /healthz
@@ -283,12 +261,7 @@ spec:
             path: /
             port: http
         resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 50m
-            memory: 64Mi
+          {{- toYaml .Values.sourceController.resources | nindent 12 }}
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -297,8 +270,10 @@ spec:
           name: data
         - mountPath: /tmp
           name: tmp
+      {{- with .Values.sourceController.nodeSelector }}
       nodeSelector:
-        kubernetes.io/os: linux
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         fsGroup: 1337
       serviceAccountName: source-controller

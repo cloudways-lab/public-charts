@@ -6,7 +6,6 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: helm-controller
-  namespace: flux-system
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -16,7 +15,6 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: image-automation-controller
-  namespace: flux-system
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -26,7 +24,6 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: image-reflector-controller
-  namespace: flux-system
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -36,4 +33,3 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: source-controller
-  namespace: flux-system

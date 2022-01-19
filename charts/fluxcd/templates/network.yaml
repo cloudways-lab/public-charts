@@ -6,7 +6,6 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: allow-egress
-  namespace: flux-system
 spec:
   egress:
   - {}
@@ -26,7 +25,6 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: allow-scraping
-  namespace: flux-system
 spec:
   ingress:
   - from:
@@ -46,7 +44,6 @@ metadata:
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.25.2
   name: allow-webhooks
-  namespace: flux-system
 spec:
   ingress:
   - from:
