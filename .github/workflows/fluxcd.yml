@@ -1,0 +1,78 @@
+name: Build fluxcd helm chart
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - "charts/fluxcd/**"
+      - ".github/workflows/fluxcd.yaml"
+  
+jobs:
+  fluxcd:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: pulling the branch
+      with:
+        fetch-depth: 50
+
+    - name: Linting Helm
+      run: |
+        helm lint charts/fluxcd/
+    - name: Setup git
+      if: github.event_name == 'push'
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+    - name: Get new chart version
+      if: github.event_name == 'push'
+      run: |
+        echo "FLUXCD_VERSION=$(cat charts/fluxcd/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+    - name: Debug
+      if: github.event_name == 'push'
+      id: version
+      run: |
+        echo "::set-output name=FLUXCD_VERSION::$(echo $FLUXCD_VERSION)"
+    - name: Generate changelog
+      if: github.event_name == 'push'
+      id: Changelog
+      uses: metcalfc/changelog-generator@v1.0.0
+      with:
+        myToken: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release
+      if: github.event_name == 'push'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "fluxcd-${{ env.FLUXCD_VERSION }}"
+        release_name: "fluxcd-${{ env.FLUXCD_VERSION }}"
+        body: ${{ steps.Changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+
+    - name: Copy chart to gh-pages branch
+      if: github.event_name == 'push'
+      run: |
+        git fetch origin gh-pages
+        git checkout gh-pages
+        git checkout main charts/fluxcd/
+    - name: Package and indexing Chart
+      if: github.event_name == 'push'
+      run: |
+        helm dependency update charts/fluxcd/
+        helm package charts/fluxcd/
+        helm repo index .
+    - name: Commit to branch
+      if: github.event_name == 'push'
+      run: |
+        git restore --staged charts/fluxcd/
+        git add index.yaml fluxcd*.tgz
+        git commit -m "[AUTO] New fluxcd Chart version"
+        git push
