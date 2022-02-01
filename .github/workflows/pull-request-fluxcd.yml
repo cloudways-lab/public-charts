@@ -1,0 +1,22 @@
+name: Build fluxcd helm chart for PR
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/fluxcd/**"
+      - ".github/workflows/pull-request-fluxcd.yaml"
+  
+jobs:
+  fluxcd:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: pulling the branch
+      with:
+        fetch-depth: 50
+
+    - name: Linting Helm
+      run: |
+        helm lint charts/fluxcd/

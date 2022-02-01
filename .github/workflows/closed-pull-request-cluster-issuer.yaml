@@ -1,17 +1,14 @@
-name: Build fluxcd helm chart
+name: Build cluster-issuer helm chart
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
     paths:
-      - "charts/fluxcd/**"
-      - ".github/workflows/fluxcd.yaml"
+      - "charts/cluster-issuer/**"
+      - ".github/workflows/closed-pull-request-cluster-issuer.yaml"
   
 jobs:
-  fluxcd:
+  cluster-issuer:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +19,7 @@ jobs:
 
     - name: Linting Helm
       run: |
-        helm lint charts/fluxcd/
+        helm lint charts/cluster-issuer/
     - name: Setup git
       if: github.event_name == 'push'
       run: |
@@ -31,12 +28,12 @@ jobs:
     - name: Get new chart version
       if: github.event_name == 'push'
       run: |
-        echo "FLUXCD_VERSION=$(cat charts/fluxcd/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+        echo "CHART_VERSION=$(cat charts/cluster-issuer/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
     - name: Debug
       if: github.event_name == 'push'
       id: version
       run: |
-        echo "::set-output name=FLUXCD_VERSION::$(echo $FLUXCD_VERSION)"
+        echo "::set-output name=CHART_VERSION::$(echo $CHART_VERSION)"
     - name: Generate changelog
       if: github.event_name == 'push'
       id: Changelog
@@ -51,8 +48,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "fluxcd-${{ env.FLUXCD_VERSION }}"
-        release_name: "fluxcd-${{ env.FLUXCD_VERSION }}"
+        tag_name: "cluster-issuer-${{ env.CHART_VERSION }}"
+        release_name: "cluster-issuer-${{ env.CHART_VERSION }}"
         body: ${{ steps.Changelog.outputs.changelog }}
         draft: false
         prerelease: false
@@ -62,17 +59,16 @@ jobs:
       run: |
         git fetch origin gh-pages
         git checkout gh-pages
-        git checkout main charts/fluxcd/
+        git checkout main charts/cluster-issuer/
     - name: Package and indexing Chart
       if: github.event_name == 'push'
       run: |
-        helm dependency update charts/fluxcd/
-        helm package charts/fluxcd/
+        helm package charts/cluster-issuer/
         helm repo index .
     - name: Commit to branch
       if: github.event_name == 'push'
       run: |
-        git restore --staged charts/fluxcd/
-        git add index.yaml fluxcd*.tgz
-        git commit -m "[AUTO] New fluxcd Chart version"
+        git restore --staged charts/cluster-issuer/
+        git add index.yaml cluster-issuer*.tgz
+        git commit -m "[AUTO] New cluster-issuer Chart version"
         git push

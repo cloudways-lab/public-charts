@@ -1,17 +1,14 @@
-name: Build cluster-issuer helm chart
+name: Build nfs-server-gcp helm chart
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
     paths:
-      - "charts/cluster-issuer/**"
-      - ".github/workflows/cluster-issuer.yaml"
+      - "charts/nfs-server-gcp/**"
+      - ".github/workflows/closed-pull-request-nfs-server-gcp.yaml"
   
 jobs:
-  cluster-issuer:
+  nfs-server-gcp:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,21 +19,25 @@ jobs:
 
     - name: Linting Helm
       run: |
-        helm lint charts/cluster-issuer/
+        helm lint charts/nfs-server-gcp/
+
     - name: Setup git
       if: github.event_name == 'push'
       run: |
         git config user.name "$GITHUB_ACTOR"
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
     - name: Get new chart version
       if: github.event_name == 'push'
       run: |
-        echo "CHART_VERSION=$(cat charts/cluster-issuer/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+        echo "NFSSERVER_VERSION=$(cat charts/nfs-server-gcp/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+
     - name: Debug
       if: github.event_name == 'push'
       id: version
       run: |
-        echo "::set-output name=CHART_VERSION::$(echo $CHART_VERSION)"
+        echo "::set-output name=NFSSERVER_VERSION::$(echo $NFSSERVER_VERSION)"
+
     - name: Generate changelog
       if: github.event_name == 'push'
       id: Changelog
@@ -51,8 +52,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "cluster-issuer-${{ env.CHART_VERSION }}"
-        release_name: "cluster-issuer-${{ env.CHART_VERSION }}"
+        tag_name: "nfs-server-gcp-${{ env.NFSSERVER_VERSION }}"
+        release_name: "nfs-server-gcp-${{ env.NFSSERVER_VERSION }}"
         body: ${{ steps.Changelog.outputs.changelog }}
         draft: false
         prerelease: false
@@ -62,16 +63,19 @@ jobs:
       run: |
         git fetch origin gh-pages
         git checkout gh-pages
-        git checkout main charts/cluster-issuer/
+        git checkout main charts/nfs-server-gcp/
+
     - name: Package and indexing Chart
       if: github.event_name == 'push'
       run: |
-        helm package charts/cluster-issuer/
+        helm dependency update charts/nfs-server-gcp/
+        helm package charts/nfs-server-gcp/
         helm repo index .
+
     - name: Commit to branch
       if: github.event_name == 'push'
       run: |
-        git restore --staged charts/cluster-issuer/
-        git add index.yaml cluster-issuer*.tgz
-        git commit -m "[AUTO] New cluster-issuer Chart version"
+        git restore --staged charts/nfs-server-gcp/
+        git add index.yaml nfs-server-gcp*.tgz
+        git commit -m "[AUTO] New nfs-server-gcp Chart version"
         git push

@@ -1,0 +1,22 @@
+name: Build cluster-issuer helm chart for PR
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/cluster-issuer/**"
+      - ".github/workflows/pull-request-cluster-issuer.yaml"
+  
+jobs:
+  cluster-issuer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: pulling the branch
+      with:
+        fetch-depth: 50
+
+    - name: Linting Helm
+      run: |
+        helm lint charts/cluster-issuer/

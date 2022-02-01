@@ -1,0 +1,22 @@
+name: Build nfs-server-gcp helm chart for PR
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/nfs-server-gcp/**"
+      - ".github/workflows/pull-request-nfs-server-gcp.yaml"
+  
+jobs:
+  nfs-server-gcp:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: pulling the branch
+      with:
+        fetch-depth: 50
+
+    - name: Linting Helm
+      run: |
+        helm lint charts/nfs-server-gcp/
