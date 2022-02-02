@@ -11,7 +11,7 @@ on:
       - main
     paths:
       - "charts/cluster-issuer/**"
-      - ".github/workflows/luster-issuer.yaml"
+      - ".github/workflows/cluster-issuer.yaml"
   
 jobs:
   cluster-issuer:
