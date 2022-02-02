@@ -1,9 +1,12 @@
 name: Build nfs-server-gcp helm chart
 on:
-  pull_request:
+  push:
     branches:
       - main
-  push:
+    paths:
+      - "charts/nfs-server-gcp/**"
+      - ".github/workflows/nfs-server-gcp.yaml"
+  pull_request:
     branches:
       - main
     paths:
@@ -33,7 +36,14 @@ jobs:
     - name: Get new chart version
       if: github.event_name == 'push'
       run: |
-        echo "NFSSERVER_VERSION=$(cat charts/nfs-server-gcp/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+        echo "NFSSERVER_VERSION=$(cat charts/nfs-server-gcp/Chart.yaml | grep version | head -1 | sed -e "s/version: //" | \
+        awk -F'[.]'  '{ major=$1;minor=$2;patch=$3;patch += 1;minor += patch / 20;patch = patch % 20;printf( "%d.%d.%d\n", major, minor, patch );}' )" \
+        >> $GITHUB_ENV
+
+    - name: Update chart version
+      if: github.event_name == 'push'
+      run: |
+        sed -i 's/^version: .*$/version: '"$NFSSERVER_VERSION"'/1' charts/nfs-server-gcp/Chart.yaml
 
     - name: Debug
       if: github.event_name == 'push'
@@ -61,12 +71,19 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Update chart version in remote repo
+      if: github.event_name == 'push'
+      run: |
+        git add charts/nfs-server-gcp/Chart.yaml
+        git commit -m "[AUTO] update chart version"
+        git push
+
     - name: Copy chart to gh-pages branch
       if: github.event_name == 'push'
       run: |
         git fetch origin gh-pages
-        git checkout gh-pages
-        git checkout main charts/nfs-server-gcp/
+        git checkout gh-pages -f
+        git checkout main charts/nfs-server-gcp/ -f
 
     - name: Package and indexing Chart
       if: github.event_name == 'push'

@@ -1,14 +1,17 @@
 name: Build cluster-issuer helm chart
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
     paths:
       - "charts/cluster-issuer/**"
       - ".github/workflows/cluster-issuer.yaml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/cluster-issuer/**"
+      - ".github/workflows/luster-issuer.yaml"
   
 jobs:
   cluster-issuer:
@@ -31,7 +34,15 @@ jobs:
     - name: Get new chart version
       if: github.event_name == 'push'
       run: |
-        echo "CHART_VERSION=$(cat charts/cluster-issuer/Chart.yaml | grep version | head -1 | sed -e "s/version: //" )" >> $GITHUB_ENV
+        echo "CHART_VERSION=$(cat charts/cluster-issuer/Chart.yaml | grep version | head -1 | sed -e "s/version: //" | \
+        awk -F'[.]'  '{ major=$1;minor=$2;patch=$3;patch += 1;minor += patch / 20;patch = patch % 20;printf( "%d.%d.%d\n", major, minor, patch );}' )" \
+        >> $GITHUB_ENV
+
+    - name: Update chart version
+      if: github.event_name == 'push'
+      run: |
+        sed -i 's/^version: .*$/version: '"$CHART_VERSION"'/1' charts/cluster-issuer/Chart.yaml
+
     - name: Debug
       if: github.event_name == 'push'
       id: version
@@ -57,12 +68,19 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Update chart version in remote repo
+      if: github.event_name == 'push'
+      run: |
+        git add charts/cluster-issuer/Chart.yaml
+        git commit -m "[AUTO] update chart version"
+        git push
+
     - name: Copy chart to gh-pages branch
       if: github.event_name == 'push'
       run: |
         git fetch origin gh-pages
-        git checkout gh-pages
-        git checkout main charts/cluster-issuer/
+        git checkout gh-pages -f
+        git checkout main charts/cluster-issuer/ -f
     - name: Package and indexing Chart
       if: github.event_name == 'push'
       run: |
