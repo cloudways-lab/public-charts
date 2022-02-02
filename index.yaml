@@ -3,7 +3,7 @@ entries:
   cluster-issuer:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-01-20T04:39:51.297428322Z"
+    created: "2022-02-02T14:49:21.883398356Z"
     description: A Helm chart for cluster issuer.
     digest: ac1e32f13c288319578e58edff1b573828c54edf461093e0bd10e2d0d49f290c
     name: cluster-issuer
@@ -14,7 +14,17 @@ entries:
   fluxcd:
   - apiVersion: v2
     appVersion: 0.25.2
-    created: "2022-01-20T04:39:51.300570443Z"
+    created: "2022-02-02T14:49:21.886974118Z"
+    description: A Helm chart custom fluxcd
+    digest: b3cf9be23cc105c1918022c0e627def9b2840b1768d9737e84386d4f5c872989
+    name: fluxcd
+    type: application
+    urls:
+    - fluxcd-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.25.2
+    created: "2022-02-02T14:49:21.885040531Z"
     description: A Helm chart custom fluxcd
     digest: 8f57dd24d60645852ca7b3b69db72cdba545050066c116a2e42af8532f562cdb
     name: fluxcd
@@ -25,7 +35,7 @@ entries:
   nfs-server-gcp:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-01-20T04:39:51.301380849Z"
+    created: "2022-02-02T14:49:21.887389437Z"
     description: A Helm chart for Kubernetes
     digest: eac4e2de2a0afcf458133d32fc55ac33ab4189f4d7ddc3ab1be5f67bbb2c2684
     name: nfs-server-gcp
@@ -33,4 +43,4 @@ entries:
     urls:
     - nfs-server-gcp-0.1.0.tgz
     version: 0.1.0
-generated: "2022-01-20T04:39:51.296834418Z"
+generated: "2022-02-02T14:49:21.882993538Z"
