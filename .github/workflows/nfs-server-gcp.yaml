@@ -74,6 +74,7 @@ jobs:
     - name: Update chart version in remote repo
       if: github.event_name == 'push'
       run: |
+        git pull origin main
         git add charts/nfs-server-gcp/Chart.yaml
         git commit -m "[AUTO] update chart version"
         git push
