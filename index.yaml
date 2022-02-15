@@ -3,7 +3,7 @@ entries:
   cluster-issuer:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-02-04T15:58:33.241015639Z"
+    created: "2022-02-15T17:02:01.20966903Z"
     description: A Helm chart for cluster issuer.
     digest: 52c926b22ea64467eb6a982adc894be53d384cdbef263968533e79c0ff9801b6
     name: cluster-issuer
@@ -13,7 +13,7 @@ entries:
     version: 0.1.3
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-02-04T15:58:33.240815439Z"
+    created: "2022-02-15T17:02:01.209403828Z"
     description: A Helm chart for cluster issuer.
     digest: b902a34f5ecfb5aff4111308924d88b23dfa7dec572d212f6d6460cd426f7fd5
     name: cluster-issuer
@@ -23,7 +23,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-02-04T15:58:33.240551939Z"
+    created: "2022-02-15T17:02:01.209122727Z"
     description: A Helm chart for cluster issuer.
     digest: ac1e32f13c288319578e58edff1b573828c54edf461093e0bd10e2d0d49f290c
     name: cluster-issuer
@@ -34,7 +34,7 @@ entries:
   fluxcd:
   - apiVersion: v2
     appVersion: 0.25.2
-    created: "2022-02-04T15:58:33.245816242Z"
+    created: "2022-02-15T17:02:01.214084953Z"
     description: A Helm chart custom fluxcd
     digest: 6ec42cd94d397dd0450e1c004ce49a9c890586db346354d92de6166b599b9876
     name: fluxcd
@@ -44,7 +44,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 0.25.2
-    created: "2022-02-04T15:58:33.244025341Z"
+    created: "2022-02-15T17:02:01.212753446Z"
     description: A Helm chart custom fluxcd
     digest: b3cf9be23cc105c1918022c0e627def9b2840b1768d9737e84386d4f5c872989
     name: fluxcd
@@ -54,7 +54,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: 0.25.2
-    created: "2022-02-04T15:58:33.24238454Z"
+    created: "2022-02-15T17:02:01.211438039Z"
     description: A Helm chart custom fluxcd
     digest: 8f57dd24d60645852ca7b3b69db72cdba545050066c116a2e42af8532f562cdb
     name: fluxcd
@@ -62,10 +62,19 @@ entries:
     urls:
     - fluxcd-0.1.0.tgz
     version: 0.1.0
+  gatewayapi:
+  - apiVersion: v2
+    created: "2022-02-15T17:02:01.215518861Z"
+    description: A Helm chart for deploying Gateway API on GKE
+    digest: 1bc94f33c1e87ac7ea2b0f0b13330923095d36eca097e7ee04c963bc29c03f51
+    name: gatewayapi
+    urls:
+    - gatewayapi-0.0.3.tgz
+    version: 0.0.3
   nfs-server-gcp:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-02-04T15:58:33.249236444Z"
+    created: "2022-02-15T17:02:01.216269465Z"
     description: A Helm chart for Kubernetes
     digest: d483fd04af98e438d0377495c83372be453f70d2d7d74ab1243696c0ac2b2333
     name: nfs-server-gcp
@@ -75,7 +84,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-02-04T15:58:33.246388242Z"
+    created: "2022-02-15T17:02:01.215903363Z"
     description: A Helm chart for Kubernetes
     digest: eac4e2de2a0afcf458133d32fc55ac33ab4189f4d7ddc3ab1be5f67bbb2c2684
     name: nfs-server-gcp
@@ -83,4 +92,4 @@ entries:
     urls:
     - nfs-server-gcp-0.1.0.tgz
     version: 0.1.0
-generated: "2022-02-04T15:58:33.239493838Z"
+generated: "2022-02-15T17:02:01.207584519Z"
