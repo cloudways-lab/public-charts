@@ -1,0 +1,8 @@
+gateway:
+  name: internal-http
+  class: gke-l7-rilb
+  listenerProtocol: HTTP
+  listenerPort: 80
+  listenerRouteKind: HTTPRoute
+  selectorLabels:
+    gateway: internal-gateway

@@ -1,0 +1,16 @@
+kind: Gateway
+apiVersion: networking.x-k8s.io/v1alpha1
+metadata:
+  name: {{ .Values.gateway.name }}
+spec:
+  gatewayClassName: {{ .Values.gateway.class }}
+  listeners:
+  - protocol: {{ .Values.gateway.listenerProtocol }}
+    port: {{ .Values.gateway.listenerPort }}
+    routes:
+      kind: {{ .Values.gateway.listenerRouteKind }}
+      selector:
+        matchLabels:
+        {{- range $key, $value := .Values.gateway.selectorLabels }}
+            {{ $key }}: {{ $value | quote }}
+        {{- end }}

@@ -1,0 +1,99 @@
+name: Build gateway-api helm chart
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "charts/gateway-api/**"
+      - ".github/workflows/gateway-api.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/gateway-api/**"
+      - ".github/workflows/gateway-api.yml"
+
+jobs:
+  gateway-api:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: pulling the branch
+      with:
+        fetch-depth: 50
+
+    - name: Linting Helm
+      run: |
+        helm lint charts/gateway-api/
+
+    - name: Setup git
+      if: github.event_name == 'push'
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+    - name: Get new chart version
+      if: github.event_name == 'push'
+      run: |
+        echo "GATEWAYAPI_VERSION=$(cat charts/gateway-api/Chart.yaml | grep version | head -1 | sed -e "s/version: //" | \
+        awk -F'[.]'  '{ major=$1;minor=$2;patch=$3;patch += 1;minor += patch / 20;patch = patch % 20;printf( "%d.%d.%d\n", major, minor, patch );}' )" \
+        >> $GITHUB_ENV
+
+    - name: Update chart version
+      if: github.event_name == 'push'
+      run: |
+        sed -i 's/^version: .*$/version: '"$GATEWAYAPI_VERSION"'/1' charts/gateway-api/Chart.yaml
+
+    - name: Debug
+      if: github.event_name == 'push'
+      id: version
+      run: |
+        echo "::set-output name=GATEWAYAPI_VERSION::$(echo $GATEWAYAPI_VERSION)"
+    - name: Generate changelog
+      if: github.event_name == 'push'
+      id: Changelog
+      uses: metcalfc/changelog-generator@v1.0.0
+      with:
+        myToken: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release
+      if: github.event_name == 'push'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "gateway-api-${{ env.GATEWAYAPI_VERSION }}"
+        release_name: "gateway-api-${{ env.GATEWAYAPI_VERSION }}"
+        body: ${{ steps.Changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+
+    - name: Update chart version in remote repo
+      if: github.event_name == 'push'
+      run: |
+        git pull origin main
+        git pull
+        git add charts/gateway-api/Chart.yaml
+        git commit -m "[AUTO] update chart version"
+        git push
+
+    - name: Copy chart to gh-pages branch
+      if: github.event_name == 'push'
+      run: |
+        git fetch origin gh-pages
+        git checkout gh-pages -f
+        git checkout main charts/gateway-api/ -f
+    - name: Package and indexing Chart
+      if: github.event_name == 'push'
+      run: |
+        helm dependency update charts/gateway-api/
+        helm package charts/gateway-api/
+        helm repo index .
+    - name: Commit to branch
+      if: github.event_name == 'push'
+      run: |
+        git restore --staged charts/gateway-api/
+        git add index.yaml gateway-api*.tgz
+        git commit -m "[AUTO] New gateway-api Chart version"
+        git push
