@@ -94,6 +94,6 @@ jobs:
       if: github.event_name == 'push'
       run: |
         git restore --staged charts/gateway-api/
-        git add index.yaml gateway-api*.tgz
+        git add index.yaml gatewayapi*.tgz
         git commit -m "[AUTO] New gateway-api Chart version"
         git push
