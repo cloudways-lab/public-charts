@@ -4,5 +4,6 @@ gateway:
   listenerProtocol: HTTP
   listenerPort: 80
   listenerRouteKind: HTTPRoute
+  namespaces: All
   selectorLabels:
     gateway: internal-gateway
