@@ -8,6 +8,8 @@ spec:
   - protocol: {{ .Values.gateway.listenerProtocol }}
     port: {{ .Values.gateway.listenerPort }}
     routes:
+      namespaces:
+        from: {{ .Values.gateway.namespaces }}
       kind: {{ .Values.gateway.listenerRouteKind }}
       selector:
         matchLabels:
