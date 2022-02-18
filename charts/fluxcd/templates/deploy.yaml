@@ -8,7 +8,7 @@ metadata:
     control-plane: controller
   name: helm-controller
 spec:
-  replicas: 1
+  replicas: {{ .Values.helmController.replicaCount }}
   selector:
     matchLabels:
       app: helm-controller
