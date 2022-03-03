@@ -5,16 +5,4 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.gateway.class }}
   listeners:
-{{- range $listener := .Values.gateway.listeners }}
-  - protocol: {{ .listenerProtocol }}
-    port: {{ .listenerPort }}
-    routes:
-      namespaces:
-        from: {{ .namespaces }}
-      kind: {{ .listenerRouteKind }}
-      selector:
-        matchLabels:
-        {{- range $key, $value := .selectorLabels }}
-            {{ $key }}: {{ $value | quote }}
-        {{- end }}
-{{- end }}
+{{ toYaml .Values.gateway.listeners | indent 2 }}
