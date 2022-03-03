@@ -5,4 +5,4 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.gateway.class }}
   listeners:
-{{ toYaml .Values.gateway.listeners | indent 2 }}
+{{ toYaml .Values.gateway.listeners | indent 4 }}
