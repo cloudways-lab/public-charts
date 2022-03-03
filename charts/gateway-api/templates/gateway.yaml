@@ -8,4 +8,28 @@ spec:
   - type: NamedAddress
     value: {{ .Values.gateway.addressName }}
   listeners:
-{{ toYaml .Values.gateway.listeners | indent 4 }}
+  - protocol: HTTP
+    port: 80
+    routes:
+      namespaces:
+        from: All
+      kind: HTTPRoute
+      selector:
+        matchLabels:
+          gateway: external-gateway
+  - protocol: HTTPS
+    port: 443
+    routes:
+      namespaces:
+        from: All
+      kind: HTTPRoute
+      selector:
+        matchLabels:
+          gateway: external-gateway
+    tls:
+      certificateRef:
+        kind: Secret
+        group: core
+        name: {{ .Values.gateway.tlsSecretName }}
+      routeOverride:
+        certificate: Deny

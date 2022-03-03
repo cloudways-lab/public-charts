@@ -2,30 +2,4 @@ gateway:
   name: external-gateway
   class: gke-l7-rilb
   addressName: ""
-listeners:
-  - protocol: HTTP
-    port: 80
-    routes:
-      namespaces:
-        from: All
-      kind: HTTPRoute
-      selector:
-        matchLabels:
-          gateway: external-gateway
-  - protocol: HTTPS
-    port: 443
-    routes:
-      namespaces:
-        from: All
-      kind: HTTPRoute
-      selector:
-        matchLabels:
-          gateway: external-gateway
-    tls:
-      certificateRef:
-        kind: Secret
-        group: core
-        name: cloudwayssites-com-tls
-      routeOverride:
-        certificate: Deny
-
+  tlsSecretName: cloudwayssites-com-tls
