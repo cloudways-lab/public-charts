@@ -1,9 +1,16 @@
 gateway:
-  name: internal-http
+  name: external-gateway
   class: gke-l7-rilb
-  listenerProtocol: HTTP
-  listenerPort: 80
-  listenerRouteKind: HTTPRoute
-  namespaces: All
-  selectorLabels:
-    gateway: internal-gateway
+listeners:
+  - listenerProtocol: HTTPS
+    listenerPort: 443
+    listenerRouteKind: HTTPRoute
+    namespaces: All
+    selectorLabels:
+      gateway: external-gateway
+  - listenerProtocol: HTTP
+    listenerPort: 80
+    listenerRouteKind: HTTPRoute
+    namespaces: All
+    selectorLabels:
+      gateway: external-gateway

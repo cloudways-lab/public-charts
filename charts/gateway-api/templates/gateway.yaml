@@ -5,14 +5,16 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.gateway.class }}
   listeners:
-  - protocol: {{ .Values.gateway.listenerProtocol }}
-    port: {{ .Values.gateway.listenerPort }}
+{{- range $listener := .Values.gateway.listeners }}
+  - protocol: {{ .listenerProtocol }}
+    port: {{ .listenerPort }}
     routes:
       namespaces:
-        from: {{ .Values.gateway.namespaces }}
-      kind: {{ .Values.gateway.listenerRouteKind }}
+        from: {{ .namespaces }}
+      kind: {{ .listenerRouteKind }}
       selector:
         matchLabels:
-        {{- range $key, $value := .Values.gateway.selectorLabels }}
+        {{- range $key, $value := .selectorLabels }}
             {{ $key }}: {{ $value | quote }}
         {{- end }}
+{{- end }}
