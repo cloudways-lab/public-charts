@@ -7,3 +7,4 @@ gateway:
   namespaces: All
   selectorLabels:
     gateway: internal-gateway
+  addressName: ""
