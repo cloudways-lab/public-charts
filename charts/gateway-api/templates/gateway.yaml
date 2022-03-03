@@ -4,6 +4,9 @@ metadata:
   name: {{ .Values.gateway.name }}
 spec:
   gatewayClassName: {{ .Values.gateway.class }}
+  addresses:
+  - type: NamedAddress
+    value: {{ .Values.gateway.addressName }}
   listeners:
   - protocol: {{ .Values.gateway.listenerProtocol }}
     port: {{ .Values.gateway.listenerPort }}
