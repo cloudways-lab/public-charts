@@ -8,14 +8,4 @@ spec:
   - type: NamedAddress
     value: {{ .Values.gateway.addressName }}
   listeners:
-  - protocol: {{ .Values.gateway.listenerProtocol }}
-    port: {{ .Values.gateway.listenerPort }}
-    routes:
-      namespaces:
-        from: {{ .Values.gateway.namespaces }}
-      kind: {{ .Values.gateway.listenerRouteKind }}
-      selector:
-        matchLabels:
-        {{- range $key, $value := .Values.gateway.selectorLabels }}
-            {{ $key }}: {{ $value | quote }}
-        {{- end }}
+{{ toYaml .Values.gateway.listeners | indent 4 }}
