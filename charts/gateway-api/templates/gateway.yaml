@@ -4,5 +4,8 @@ metadata:
   name: {{ .Values.gateway.name }}
 spec:
   gatewayClassName: {{ .Values.gateway.class }}
+  addresses:
+  - type: NamedAddress
+    value: {{ .Values.gateway.addressName }}
   listeners:
 {{ toYaml .Values.gateway.listeners | indent 4 }}

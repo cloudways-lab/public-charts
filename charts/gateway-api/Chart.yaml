@@ -1,4 +1,4 @@
 apiVersion: v2
 name: gatewayapi
 description: A Helm chart for deploying Gateway API on GKE
-version: 0.0.4
+version: 0.0.5
