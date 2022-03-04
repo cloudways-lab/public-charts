@@ -8,4 +8,4 @@ spec:
   - type: NamedAddress
     value: {{ .Values.gateway.addressName }}
   listeners:
-{{ toYaml .Values.gateway.listeners | indent 4 }}
+{{ toYaml .Values.listeners | indent 4 }}
