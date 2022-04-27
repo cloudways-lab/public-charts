@@ -1,5 +1,5 @@
 sourceController:
-  image: ghcr.io/fluxcd/source-controller:v0.20.1
+  image: ghcr.io/fluxcd/source-controller:v0.24.2
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -8,9 +8,9 @@ sourceController:
     requests:
       cpu: 50m
       memory: 64Mi
-  nodeSelector: 
+  nodeSelector:
     kubernetes.io/os: linux
-  args: 
+  args:
     - --events-addr=
     - --watch-all-namespaces=true
     - --log-level=info
@@ -20,19 +20,19 @@ sourceController:
     - --storage-adv-addr=source-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
 
 helmController:
-  image: ghcr.io/fluxcd/helm-controller:v0.15.0
+  image: ghcr.io/fluxcd/helm-controller:v0.20.1
   imagePullPolicy: IfNotPresent
   replicaCount: 3
-  resources: 
+  resources:
     limits:
       cpu: 1000m
       memory: 1Gi
     requests:
       cpu: 100m
       memory: 64Mi
-  nodeSelector: 
+  nodeSelector:
     kubernetes.io/os: linux
-  args: 
+  args:
     - --events-addr=
     - --watch-all-namespaces=true
     - --log-level=info
@@ -41,7 +41,7 @@ helmController:
     - --concurrent=8
 
 imageAutomationController:
-  image: ghcr.io/fluxcd/image-automation-controller:v0.19.0
+  image: ghcr.io/fluxcd/image-automation-controller:v0.22.0
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -50,7 +50,7 @@ imageAutomationController:
     requests:
       cpu: 100m
       memory: 64Mi
-  nodeSelector: 
+  nodeSelector:
     kubernetes.io/os: linux
   args:
     - --events-addr=
@@ -60,7 +60,7 @@ imageAutomationController:
     - --enable-leader-election
 
 imageReflectorController:
-  image: ghcr.io/fluxcd/image-reflector-controller:v0.15.0
+  image: ghcr.io/fluxcd/image-reflector-controller:v0.17.2
   imagePullPolicy: IfNotPresent
   resources:
     limits:
