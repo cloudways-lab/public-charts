@@ -59,6 +59,10 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.helmController.tolerations }}
+      tolerations:
+      {{- toYaml .Values.helmController.tolerations | nindent 8 }}
+      {{- end }}
       serviceAccountName: helm-controller
       terminationGracePeriodSeconds: 600
       volumes:
@@ -125,6 +129,10 @@ spec:
       {{- with .Values.imageAutomationController.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imageAutomationController.tolerations }}
+      tolerations:
+      {{- toYaml .Values.imageAutomationController.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
         fsGroup: 1337
@@ -197,6 +205,10 @@ spec:
       {{- with .Values.imageReflectorController.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imageReflectorController.tolerations }}
+      tolerations:
+      {{- toYaml .Values.imageReflectorController.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
         fsGroup: 1337
@@ -273,6 +285,10 @@ spec:
       {{- with .Values.sourceController.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.sourceController.tolerations }}
+      tolerations:
+      {{- toYaml .Values.sourceController.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
         fsGroup: 1337

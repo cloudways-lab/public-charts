@@ -10,7 +10,8 @@ sourceController:
       memory: 64Mi
   nodeSelector:
     kubernetes.io/os: linux
-  args:
+  tolerations: []
+  args: 
     - --events-addr=
     - --watch-all-namespaces=true
     - --log-level=info
@@ -32,7 +33,8 @@ helmController:
       memory: 64Mi
   nodeSelector:
     kubernetes.io/os: linux
-  args:
+  tolerations: []
+  args: 
     - --events-addr=
     - --watch-all-namespaces=true
     - --log-level=info
@@ -52,6 +54,7 @@ imageAutomationController:
       memory: 64Mi
   nodeSelector:
     kubernetes.io/os: linux
+  tolerations: []
   args:
     - --events-addr=
     - --watch-all-namespaces=true
@@ -71,6 +74,7 @@ imageReflectorController:
       memory: 64Mi
   nodeSelector:
     kubernetes.io/os: linux
+  tolerations: []
   args:
     - --events-addr=
     - --watch-all-namespaces=true
